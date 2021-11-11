@@ -10,6 +10,10 @@ DEAD = 0
 FEMALE = 0
 MALE = 1
 
+# Survived,Pclass,Gender,Age,SibSp,Parch,Fare,Embarked
+val_names = ["乗客のクラス(Pclass): 1が高級", "性別(Gender): 0が女性, 1が男性", "年齢(Age)", "乗船していた兄弟、配偶者の人数(SibSp)",
+"乗船していた両親、子供の人数(Parch)", "運賃(Fare)", "乗船した港(Embarked): 0がCherbourg, 1がQueenstown, 2がSouthampton"]
+
 st.set_page_config(
     page_title="Titanic Analysis App",
     layout="wide",
@@ -81,7 +85,8 @@ def main():
 def input_name():
     # Input username
     with st.form("my_form"):
-        inputname = st.text_input('username', 'ユーザ名')
+        st.text("メールアドレス b〇〇〇〇〇〇@seig-boys.jp に含まれている番号(学籍番号)を入力")
+        inputname = st.text_input('学籍番号', 'ここに学籍番号を入力')
         submitted = st.form_submit_button("Go!!")
         if submitted: # Submit buttonn 押された時に
             if inputname == 'ユーザ名' or input_name == '': # nameが不適当なら
@@ -91,6 +96,7 @@ def input_name():
             st.session_state.username = inputname
             st.session_state.page = 'deal_data'
             st.write("名前: ", inputname)
+            st.text("↑ 自分の学籍番号であることを確認したら、もう一度 Go! をクリック")
 
 # ---------------- 訓練データの加工 ----------------------------------
 def deal_data():
@@ -125,9 +131,13 @@ def vis():
     if graph == "棒グラフ":
         logging.info(',%s,データ可視化,%s', st.session_state.username, graph)
         st.markdown('## 生存率 × 他の変数')
+        st.markdown('**生存した人**に注目。それぞれの変数で、生存した人の分布を示す。')
+
         with st.form("棒グラフ"):
             # 変数選択
-            hist_val = st.selectbox('変数を選択',label)
+            hist_val = st.selectbox('変数を選択',val_names)
+            hist_val = data.get_val(hist_val)
+
             logging.info(',%s,棒グラフ,%s', st.session_state.username, hist_val)
 
             # Submitボタン
@@ -148,9 +158,12 @@ def vis():
     elif graph == "ヒストグラム(曲線)":
         logging.info(',%s,データ可視化,%s', st.session_state.username, graph)
         st.markdown('## データの分布を見てみよう')
+        st.markdown('赤は生存者の分布、青は死亡者の分布を示す。それぞれ**山の頂点**がどこにあるのかに注目すると良い。')
+
 
         with st.form("ヒストグラム(曲線)"):
-            hist_val = st.selectbox('変数を選択',label)
+            hist_val = st.selectbox('変数を選択',val_names)
+            hist_val = data.get_val(hist_val)
             logging.info(',%s,ヒストグラム(曲線),%s', st.session_state.username, hist_val)
 
             # Submitボタン
@@ -163,7 +176,7 @@ def vis():
 
                 g = sns.displot(data=tmp, x=hist_val, hue="Survived",fill = True, kind="kde",  palette='seismic')
 
-                g.set_axis_labels(hist_val, "survival probability")
+                g.set_axis_labels(hist_val, "")
                 st.pyplot(g)
 
         # コードの表示
@@ -183,10 +196,13 @@ def vis():
             left, right = st.beta_columns(2)
 
             with left: # 変数選択 
-                x_label = st.selectbox('横軸を選択',label)
+                x_label = st.selectbox('横軸を選択',val_names)
+                x_label = data.get_val(x_label)
+
 
             with right:
-                y_label = st.selectbox('縦軸を選択',label)
+                y_label = st.selectbox('縦軸を選択',val_names)
+                y_label = data.get_val(y_label)
             
             logging.info(',%s,散布図,%s', st.session_state.username, x_label+'_'+ y_label)
         
