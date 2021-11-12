@@ -124,65 +124,74 @@ def vis():
     # sidebar でグラフを選択
     graph = st.sidebar.radio(
         'グラフの種類',
-        ('棒グラフ', 'ヒストグラム(曲線)', '散布図', '全ての散布図')
+        ('ヒストグラム', '散布図', '全ての散布図')
     )
 
     # 棒グラフ
-    if graph == "棒グラフ":
-        logging.info(',%s,データ可視化,%s', st.session_state.username, graph)
-        st.markdown('## 生存率 × 他の変数')
-        st.markdown('**生存した人**に注目。それぞれの変数で、生存した人の分布を示す。')
+    # if graph == "棒グラフ":
+    #     logging.info(',%s,データ可視化,%s', st.session_state.username, graph)
+    #     st.markdown('## 生存率 × 他の変数')
+    #     st.markdown('**生存した人**に注目。それぞれの変数で、生存した人の分布を示す。')
 
-        with st.form("棒グラフ"):
-            # 変数選択
-            hist_val = st.selectbox('変数を選択',val_names)
-            hist_val = data.get_val(hist_val)
+    #     with st.form("棒グラフ"):
+    #         # 変数選択
+    #         hist_val = st.selectbox('変数を選択',val_names)
+    #         hist_val = data.get_val(hist_val)
 
-            logging.info(',%s,棒グラフ,%s', st.session_state.username, hist_val)
+    #         logging.info(',%s,棒グラフ,%s', st.session_state.username, hist_val)
 
-            # Submitボタン
-            plot_button = st.form_submit_button('グラフ表示')
-            if plot_button:
-                g = sns.catplot(x=hist_val, y='Survived', data=full_data, kind='bar', ci=None)
-                g = g.set_ylabels("survival probability")
-                st.pyplot(g)
-        # コードの表示
-        code = st.sidebar.checkbox('コードを表示')
-        if code:
-            code_txt = "g = sns.catplot(x='" + hist_val + "', y='Survived', kind='bar', data=full_data, ci=None)"
-            st.sidebar.markdown('---')
-            st.sidebar.write(code_txt)
-            st.sidebar.markdown('---')
+    #         # Submitボタン
+    #         plot_button = st.form_submit_button('グラフ表示')
+    #         if plot_button:
+    #             if hist_val == "Fare":
+    #                 g = px.histogram(full_data, x=hist_val, nbins=100)
+    #                 st.plotly_chart(g)
+    #             elif hist_val == "Age":
+    #                 g = px.histogram(full_data, x=hist_val, nbins=5)
+    #                 st.plotly_chart(g)
+    #             else:
+    #                 g = sns.catplot(x=hist_val, y='Survived', data=full_data, kind='bar', ci=None)
+    #                 g = g.set_ylabels("survival probability", nbins=5)
+    #                 st.pyplot(g)
+    #     # コードの表示
+    #     code = st.sidebar.checkbox('コードを表示')
+    #     if code:
+    #         code_txt = "g = sns.catplot(x='" + hist_val + "', y='Survived', kind='bar', data=full_data, ci=None)"
+    #         st.sidebar.markdown('---')
+    #         st.sidebar.write(code_txt)
+    #         st.sidebar.markdown('---')
 
-    # ヒストグラム(曲線)
-    elif graph == "ヒストグラム(曲線)":
+    # ヒストグラム
+    if graph == "ヒストグラム":
         logging.info(',%s,データ可視化,%s', st.session_state.username, graph)
         st.markdown('## データの分布を見てみよう')
-        st.markdown('赤は生存者の分布、青は死亡者の分布を示す。それぞれ**山の頂点**がどこにあるのかに注目すると良い。')
+        st.markdown('赤は生存者の分布、青は死亡者の分布を示す。')
 
 
-        with st.form("ヒストグラム(曲線)"):
+        with st.form("ヒストグラム"):
             hist_val = st.selectbox('変数を選択',val_names)
             hist_val = data.get_val(hist_val)
-            logging.info(',%s,ヒストグラム(曲線),%s', st.session_state.username, hist_val)
+            logging.info(',%s,ヒストグラム,%s', st.session_state.username, hist_val)
 
             # Submitボタン
             plot_button = st.form_submit_button('グラフ表示')
             
             if plot_button:
-                tmp = full_data.copy() # ただ=で複製すると参照渡し → full_dataも値が書き変わる
-                tmp.Survived.replace(DEAD, "dead", inplace=True)
-                tmp.Survived.replace(ALIVE, "alive", inplace=True)
-
-                g = sns.displot(data=tmp, x=hist_val, hue="Survived",fill = True, kind="kde",  palette='seismic')
-
-                g.set_axis_labels(hist_val, "")
-                st.pyplot(g)
+                if hist_val == "Fare":
+                    g = px.histogram(full_data, x=hist_val, nbins=20, color='Survived', barmode='group')
+                    st.plotly_chart(g)
+                elif hist_val == "Age":
+                    g = px.histogram(full_data, x=hist_val, nbins=10,color='Survived', barmode='group')
+                    st.plotly_chart(g)
+                else:
+                    g = sns.catplot(x=hist_val, y='Survived', data=full_data, kind='bar', ci=None)
+                    g = px.histogram(full_data, x=hist_val, color='Survived', barmode='group')
+                    st.plotly_chart(g)
 
         # コードの表示
         code = st.sidebar.checkbox('コードを表示')
         if code:
-            code_txt = "g = sns.displot(data=full_data, x='" + hist_val + "', hue='Survived',fill = True, kind='kde',  palette='seismic')"
+            code_txt = "px.histogram(full_data, x=" + hist_val + ", nbins=20, color='Survived', barmode='group')"
             st.sidebar.markdown('---')
             st.sidebar.write(code_txt)
             st.sidebar.markdown('---')
