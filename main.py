@@ -309,7 +309,7 @@ def vis():
         st.markdown("## 散布図 で 分布 を調べる")
         with st.form("散布図"):
             # (Todo) バージョンアップ: 今betaじゃないはず
-            left, right = st.beta_columns(2)
+            left, right = st.columns(2)
 
             with left:  # 変数選択
                 x_label = st.selectbox("横軸を選択", val_names)
